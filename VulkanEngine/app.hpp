@@ -2,6 +2,7 @@
 
 #include "engine_window.hpp"
 #include "engine_pipeline.hpp"
+#include "engine_device.hpp"
 
 
 namespace VulkanEngine {
@@ -14,7 +15,8 @@ namespace VulkanEngine {
 		void run();
 	private:
 		VulkanEngineWindow veWindow{WIDTH, HEIGHT, "HELLO VULKAN !"};
-		EnginePipeline enginePipline{"shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv"};
+		EngineDevice engineDevice{ veWindow };
+		EnginePipeline enginePipline{engineDevice,EnginePipeline::defaultPipelineConfigurationInfo(WIDTH,HEIGHT), "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv"};
 		
 	};
 }
