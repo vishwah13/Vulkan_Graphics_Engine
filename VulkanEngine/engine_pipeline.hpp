@@ -26,6 +26,7 @@ namespace VulkanEngine {
 		EnginePipeline(const EnginePipeline&) = delete;
 		 void operators(const EnginePipeline&) = delete;
 
+		 void bind(VkCommandBuffer commandBuffer);
 		 static PipelineConfigurationInfo defaultPipelineConfigurationInfo(uint32_t width, uint32_t height);
 	private:
 		static std::vector<char> readFile(const std::string& filePath);
