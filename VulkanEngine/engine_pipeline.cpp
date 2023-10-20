@@ -1,5 +1,5 @@
 #include "engine_pipeline.hpp"
-
+#include "engine_model.hpp"
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -144,12 +144,15 @@ namespace VulkanEngine {
 		shaderStages[1].pNext = nullptr;
 		shaderStages[1].pSpecializationInfo = nullptr;
 
+		auto bindingDescription = EngineModel::Vertex::getBindingDescription();
+		auto attributeDescription = EngineModel::Vertex::getAttributeDescription();
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size());
+		vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescription.size());
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
+		vertexInputInfo.pVertexBindingDescriptions = bindingDescription.data();
 
 		VkPipelineViewportStateCreateInfo viewportInfo{};
 		viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

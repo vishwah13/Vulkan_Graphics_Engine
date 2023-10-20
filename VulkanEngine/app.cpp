@@ -6,6 +6,7 @@
 namespace VulkanEngine {
 	App::App()
 	{
+		loadModel();
 		createPipelineLayout();
 		createPipeline();
 		createCommandBuffer();
@@ -22,6 +23,16 @@ namespace VulkanEngine {
 			drawFrame();
 		}
 		vkDeviceWaitIdle(engineDevice.device());
+	}
+	void App::loadModel()
+	{
+		std::vector<EngineModel::Vertex> vertices {
+			{{0.0f, -0.5f}},
+			{ {0.5f, 0.5f} },
+			{ {-0.5f, 0.5f} }
+		};
+
+		engineModel = std::make_unique<EngineModel>(engineDevice, vertices);
 	}
 	void App::createPipelineLayout()
 	{
@@ -83,7 +94,8 @@ namespace VulkanEngine {
 			vkCmdBeginRenderPass(commandBuffer[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			enginePipline->bind(commandBuffer[i]);
-			vkCmdDraw(commandBuffer[i], 3, 1, 0, 0);
+			engineModel->bind(commandBuffer[i]);
+			engineModel->draw(commandBuffer[i]);
 
 			vkCmdEndRenderPass(commandBuffer[i]);
 			if (vkEndCommandBuffer(commandBuffer[i]) != VK_SUCCESS) {
