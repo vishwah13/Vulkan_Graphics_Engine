@@ -27,9 +27,9 @@ namespace VulkanEngine {
 	void App::loadModel()
 	{
 		std::vector<EngineModel::Vertex> vertices {
-			{{0.0f, -0.5f}},
-			{ {0.5f, 0.5f} },
-			{ {-0.5f, 0.5f} }
+			{{0.0f, -0.5f}, { 1.0f,0.0f,0.0f }},
+			{ {0.5f, 0.5f}, { 0.0f,1.0f,0.0f } },
+			{ {-0.5f, 0.5f}, { 0.0f,0.0f,1.0f } }
 		};
 
 		engineModel = std::make_unique<EngineModel>(engineDevice, vertices);
