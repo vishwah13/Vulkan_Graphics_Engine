@@ -28,11 +28,14 @@ namespace VulkanEngine {
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffer();
+		void freeCommandBuffers();
 		void drawFrame();
+		void recreateSwapChain();
+		void recordCommandBuffer(int imageIndex);
 
 		VulkanEngineWindow veWindow{WIDTH, HEIGHT, "HELLO VULKAN !"};
 		EngineDevice engineDevice{ veWindow };
-		EngineSwapChain engineSwapChain{ engineDevice, veWindow.getExtend() };
+		std::unique_ptr<EngineSwapChain> engineSwapChain;
 		std::unique_ptr<EnginePipeline> enginePipline;
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffer;

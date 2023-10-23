@@ -18,13 +18,17 @@ namespace VulkanEngine {
 
 		bool shouldClose() { return glfwWindowShouldClose(window); };
 		VkExtent2D getExtend() { return {static_cast<uint32_t>(width),static_cast<uint32_t>(height) }; }
+		bool wasWindowResized() {return frameBufferResized;}
+		void resetWindowResizedFlag() { frameBufferResized = false; }
 
 		void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 	private:
+		static void frameBufferResizedCallback(GLFWwindow* window, int width, int height);
 		void initWindow();
 
-		const int width;
-		const int height;
+		int width;
+		int height;
+		bool frameBufferResized = false;
 		std::string windowName;
 		GLFWwindow* window;
 	};

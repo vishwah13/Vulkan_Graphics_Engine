@@ -18,12 +18,21 @@ namespace VulkanEngine {
 			throw std::runtime_error("FAILED TO CREATE SURFACE !!!");
 		}
 	}
+	void VulkanEngineWindow::frameBufferResizedCallback(GLFWwindow* window, int width, int height)
+	{
+		auto engineWindow = reinterpret_cast<VulkanEngineWindow*>(glfwGetWindowUserPointer(window));
+		engineWindow->frameBufferResized = true;
+		engineWindow->width = width;
+		engineWindow->height = height;
+	}
 	void VulkanEngineWindow::initWindow()
 	{
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 		window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
+		glfwSetWindowUserPointer(window, this);
+		glfwSetFramebufferSizeCallback(window, frameBufferResizedCallback);
 	}
 }

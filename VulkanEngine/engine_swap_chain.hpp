@@ -8,6 +8,7 @@
 // std lib headers
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace VulkanEngine {
 
@@ -16,10 +17,11 @@ class EngineSwapChain {
   static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
   EngineSwapChain(EngineDevice &deviceRef, VkExtent2D windowExtent);
+  EngineSwapChain(EngineDevice &deviceRef, VkExtent2D windowExtent,std::shared_ptr<EngineSwapChain> previous);
   ~EngineSwapChain();
 
   EngineSwapChain(const EngineSwapChain &) = delete;
-  void operator=(const EngineSwapChain &) = delete;
+  EngineSwapChain& operator=(const EngineSwapChain &) = delete;
 
   VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
   VkRenderPass getRenderPass() { return renderPass; }
@@ -39,6 +41,7 @@ class EngineSwapChain {
   VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
  private:
+  void inint();
   void createSwapChain();
   void createImageViews();
   void createDepthResources();
@@ -69,6 +72,7 @@ class EngineSwapChain {
   VkExtent2D windowExtent;
 
   VkSwapchainKHR swapChain;
+  std::shared_ptr<EngineSwapChain> oldSwapChain;
 
   std::vector<VkSemaphore> imageAvailableSemaphores;
   std::vector<VkSemaphore> renderFinishedSemaphores;

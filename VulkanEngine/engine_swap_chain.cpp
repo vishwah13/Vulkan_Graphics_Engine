@@ -13,13 +13,26 @@ namespace VulkanEngine {
 
 EngineSwapChain::EngineSwapChain(EngineDevice &deviceRef, VkExtent2D extent)
     : device{deviceRef}, windowExtent{extent} {
-  createSwapChain();
-  createImageViews();
-  createRenderPass();
-  createDepthResources();
-  createFramebuffers();
-  createSyncObjects();
+    inint();
 }
+
+EngineSwapChain::EngineSwapChain(EngineDevice& deviceRef, VkExtent2D extent,std::shared_ptr<EngineSwapChain> previous)
+    : device{ deviceRef }, windowExtent{ extent }, oldSwapChain(previous) {
+    inint();
+
+    oldSwapChain = nullptr;
+}
+
+void EngineSwapChain::inint()
+{
+    createSwapChain();
+    createImageViews();
+    createRenderPass();
+    createDepthResources();
+    createFramebuffers();
+    createSyncObjects();
+}
+
 
 EngineSwapChain::~EngineSwapChain() {
   for (auto imageView : swapChainImageViews) {
@@ -162,7 +175,7 @@ void EngineSwapChain::createSwapChain() {
   createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;
 
-  createInfo.oldSwapchain = VK_NULL_HANDLE;
+  createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : oldSwapChain->swapChain;
 
   if (vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
     throw std::runtime_error("failed to create swap chain!");
