@@ -5,8 +5,9 @@
 #include "engine_window.hpp"
 #include "engine_pipeline.hpp"
 #include "engine_device.hpp"
-#include "engine_swap_chain.hpp"
+#include "engine_renderer.hpp"
 #include "engine_model.hpp"
+#include "game_object.hpp"
 
 
 namespace VulkanEngine {
@@ -24,22 +25,17 @@ namespace VulkanEngine {
 
 		void run();
 	private:
-		void loadModel();
+		void loadGameobjects();
 		void createPipelineLayout();
 		void createPipeline();
-		void createCommandBuffer();
-		void freeCommandBuffers();
-		void drawFrame();
-		void recreateSwapChain();
-		void recordCommandBuffer(int imageIndex);
+		void renderGameobjects(VkCommandBuffer commandBuffers);
 
 		VulkanEngineWindow veWindow{WIDTH, HEIGHT, "HELLO VULKAN !"};
 		EngineDevice engineDevice{ veWindow };
-		std::unique_ptr<EngineSwapChain> engineSwapChain;
+		EngineRenderer engineRenderer{ veWindow,engineDevice };
 		std::unique_ptr<EnginePipeline> enginePipline;
 		VkPipelineLayout pipelineLayout;
-		std::vector<VkCommandBuffer> commandBuffer;
-		std::unique_ptr<EngineModel> engineModel;
+		std::vector<GameObject> gameObjects;
 		
 	};
 }

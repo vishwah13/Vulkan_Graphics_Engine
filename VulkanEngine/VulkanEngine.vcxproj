@@ -146,6 +146,7 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="engine_model.cpp" />
     <ClCompile Include="engine_pipeline.cpp" />
+    <ClCompile Include="engine_renderer.cpp" />
     <ClCompile Include="engine_window.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine_device.cpp" />
@@ -155,9 +156,11 @@
     <ClInclude Include="app.hpp" />
     <ClInclude Include="engine_model.hpp" />
     <ClInclude Include="engine_pipeline.hpp" />
+    <ClInclude Include="engine_renderer.hpp" />
     <ClInclude Include="engine_window.hpp" />
     <ClInclude Include="engine_device.hpp" />
     <ClInclude Include="engine_swap_chain.hpp" />
+    <ClInclude Include="game_object.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
