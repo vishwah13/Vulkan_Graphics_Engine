@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #include <memory>
 #include <vector>
@@ -22,11 +21,17 @@ namespace VulkanEngine {
 		EngineRenderer& operator=(const EngineRenderer&) = delete;
 
 		VkRenderPass getSwapChainRenderPass() const { return engineSwapChain->getRenderPass(); }
+
+		int getFrameIndex() const {
+			assert(isFrameStarted && "cannot get frame index when not in progress");
+			return currentFrameIndex;
+		}
+
 		bool isFrameInProgress() const {return isFrameStarted; }
 
 		VkCommandBuffer getCurrentCommandBuffer() const {
 			assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
-			return commandBuffer[currentImageIndex]; }
+			return commandBuffer[currentFrameIndex]; }
 
 		VkCommandBuffer beginFrame();
 		void endFrame();
@@ -43,6 +48,7 @@ namespace VulkanEngine {
 		std::vector<VkCommandBuffer> commandBuffer;
 
 		uint32_t currentImageIndex;
+		int currentFrameIndex;
 		bool isFrameStarted;
 	};
 }

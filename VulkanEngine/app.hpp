@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 #include "engine_window.hpp"
-#include "engine_pipeline.hpp"
 #include "engine_device.hpp"
 #include "engine_renderer.hpp"
 #include "engine_model.hpp"
@@ -26,15 +25,11 @@ namespace VulkanEngine {
 		void run();
 	private:
 		void loadGameobjects();
-		void createPipelineLayout();
-		void createPipeline();
-		void renderGameobjects(VkCommandBuffer commandBuffers);
+		
 
 		VulkanEngineWindow veWindow{WIDTH, HEIGHT, "HELLO VULKAN !"};
 		EngineDevice engineDevice{ veWindow };
 		EngineRenderer engineRenderer{ veWindow,engineDevice };
-		std::unique_ptr<EnginePipeline> enginePipline;
-		VkPipelineLayout pipelineLayout;
 		std::vector<GameObject> gameObjects;
 		
 	};
