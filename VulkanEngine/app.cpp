@@ -4,6 +4,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include "app.hpp"
+#include "engine_Camera.hpp"
 #include <stdexcept>
 #include <array>
 #include <assert.h>
@@ -17,61 +18,101 @@ namespace VulkanEngine {
 	{
 		loadGameobjects();
 	}
-	App::~App(){}
+	App::~App() {}
 
 	void App::run()
 	{
 		SimpleRenderSystem simpleRendererSystem{ engineDevice, engineRenderer.getSwapChainRenderPass() };
+		EngineCamera camera{};
+		//camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
+		camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
+		
 		while (!veWindow.shouldClose())
 		{
 			glfwPollEvents();
-			
+			float aspect = engineRenderer.getAspectRatio();
+			//camera.setOrthographicProjection(-aspect,aspect, -1, 1, -1, 1);
+			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+
 			if (auto commandBuffer = engineRenderer.beginFrame()) {
 				engineRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRendererSystem.renderGameobjects(commandBuffer, gameObjects);
+				simpleRendererSystem.renderGameobjects(commandBuffer, gameObjects,camera);
 				engineRenderer.endSwapChainRenderPass(commandBuffer);
 				engineRenderer.endFrame();
 			}
 		}
 		vkDeviceWaitIdle(engineDevice.device());
 	}
+
+	std::unique_ptr<EngineModel> createCubeModel(EngineDevice& device, glm::vec3 offset) {
+		std::vector<EngineModel::Vertex> vertices{
+
+			// left face (white)
+			{{-.5f, -.5f, -.5f}, { .9f, .9f, .9f }},
+			{ {-.5f, .5f, .5f}, {.9f, .9f, .9f} },
+			{ {-.5f, -.5f, .5f}, {.9f, .9f, .9f} },
+			{ {-.5f, -.5f, -.5f}, {.9f, .9f, .9f} },
+			{ {-.5f, .5f, -.5f}, {.9f, .9f, .9f} },
+			{ {-.5f, .5f, .5f}, {.9f, .9f, .9f} },
+
+				// right face (yellow)
+			{ {.5f, -.5f, -.5f}, {.8f, .8f, .1f} },
+			{ {.5f, .5f, .5f}, {.8f, .8f, .1f} },
+			{ {.5f, -.5f, .5f}, {.8f, .8f, .1f} },
+			{ {.5f, -.5f, -.5f}, {.8f, .8f, .1f} },
+			{ {.5f, .5f, -.5f}, {.8f, .8f, .1f} },
+			{ {.5f, .5f, .5f}, {.8f, .8f, .1f} },
+
+				// top face (orange, remember y axis points down)
+			{ {-.5f, -.5f, -.5f}, {.9f, .6f, .1f} },
+			{ {.5f, -.5f, .5f}, {.9f, .6f, .1f} },
+			{ {-.5f, -.5f, .5f}, {.9f, .6f, .1f} },
+			{ {-.5f, -.5f, -.5f}, {.9f, .6f, .1f} },
+			{ {.5f, -.5f, -.5f}, {.9f, .6f, .1f} },
+			{ {.5f, -.5f, .5f}, {.9f, .6f, .1f} },
+
+				// bottom face (red)
+			{ {-.5f, .5f, -.5f}, {.8f, .1f, .1f} },
+			{ {.5f, .5f, .5f}, {.8f, .1f, .1f} },
+			{ {-.5f, .5f, .5f}, {.8f, .1f, .1f} },
+			{ {-.5f, .5f, -.5f}, {.8f, .1f, .1f} },
+			{ {.5f, .5f, -.5f}, {.8f, .1f, .1f} },
+			{ {.5f, .5f, .5f}, {.8f, .1f, .1f} },
+
+				// nose face (blue)
+			{ {-.5f, -.5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {.5f, .5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {-.5f, .5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {-.5f, -.5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {.5f, -.5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {.5f, .5f, 0.5f}, {.1f, .1f, .8f} },
+
+				// tail face (green)
+			{ {-.5f, -.5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {.5f, .5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {-.5f, .5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {-.5f, -.5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {.5f, -.5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {.5f, .5f, -0.5f}, {.1f, .8f, .1f} },
+
+		};
+		for (auto& v : vertices) {
+			v.position += offset;
+		}
+		return std::make_unique<EngineModel>(device, vertices);
+	}
+
 	void App::loadGameobjects()
 	{
-		std::vector<EngineModel::Vertex> vertices {
-			{{0.0f, -0.5f}, { 1.0f,0.0f,0.0f }},
-			{ {0.5f, 0.5f}, { 0.0f,1.0f,0.0f } },
-			{ {-0.5f, 0.5f}, { 0.0f,0.0f,1.0f } }
-		};
+		std::shared_ptr<EngineModel> engineModel = createCubeModel(engineDevice, { .0f,.0f,.0f });
 
-		auto engineModel = std::make_shared<EngineModel>(engineDevice, vertices);
-
-		std::vector<glm::vec3> colors{
-			{0.925f, .0f, .458f, },
-			{1.f, .35f, 0.f},
-			{ 0.964f, 0.533f, .298f },
-			{ 1.0f, 0.913f, .168f },
-			{ .172f, .89f, 0.71f }
-		};
-
-		for (auto& color : colors)
-		{
-			color = glm::pow(color, glm::vec3{2.2f});
-		}
-
-		for (int i = 0; i < 40; i++)
-		{
-			auto triangle = GameObject::createGameObject();
-			triangle.model = engineModel;
-			triangle.transform2d.scale = glm::vec2(.5f) + i * 0.025f;
-			triangle.transform2d.rotation = i * glm::pi<float>() * .025f;
-			triangle.color = colors[i % colors.size()];
-
-			gameObjects.push_back(std::move(triangle));
-		}
-
-		
+		auto cube = GameObject::createGameObject();
+		cube.model = engineModel;
+		cube.transform.translation = { .0f, .0f, 2.5f };
+		cube.transform.scale = { .5f, .5f, .5f };
+		gameObjects.push_back(std::move(cube));
 	}
-	
+
 }
 
 

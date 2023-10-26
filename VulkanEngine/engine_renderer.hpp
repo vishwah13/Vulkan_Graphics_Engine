@@ -20,8 +20,8 @@ namespace VulkanEngine {
 		EngineRenderer(const EngineRenderer&) = delete;
 		EngineRenderer& operator=(const EngineRenderer&) = delete;
 
-		VkRenderPass getSwapChainRenderPass() const { return engineSwapChain->getRenderPass(); }
-
+		VkRenderPass getSwapChainRenderPass() const { return engineSwapChain->getRenderPass(); };
+		float getAspectRatio() const { return engineSwapChain->extentAspectRatio(); };
 		int getFrameIndex() const {
 			assert(isFrameStarted && "cannot get frame index when not in progress");
 			return currentFrameIndex;

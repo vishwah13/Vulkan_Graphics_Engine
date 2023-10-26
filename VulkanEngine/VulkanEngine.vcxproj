@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="engine_Camera.cpp" />
     <ClCompile Include="engine_model.cpp" />
     <ClCompile Include="engine_pipeline.cpp" />
     <ClCompile Include="engine_renderer.cpp" />
@@ -155,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.hpp" />
+    <ClInclude Include="engine_Camera.hpp" />
     <ClInclude Include="engine_model.hpp" />
     <ClInclude Include="engine_pipeline.hpp" />
     <ClInclude Include="engine_renderer.hpp" />

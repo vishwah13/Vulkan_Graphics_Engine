@@ -12,6 +12,11 @@
 
 namespace VulkanEngine {
 
+	struct SimplePushConstantData {
+		glm::mat4 transform{1.f};
+		alignas(16) glm::vec3 color;
+	};
+
 	SimpleRenderSystem::SimpleRenderSystem(EngineDevice& device, VkRenderPass renderpass) : engineDevice(device) 
 	{
 		createPipelineLayout();
@@ -21,32 +26,24 @@ namespace VulkanEngine {
 	{
 		vkDestroyPipelineLayout(engineDevice.device(), pipelineLayout, nullptr);
 	}
-	void SimpleRenderSystem::renderGameobjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects)
+	void SimpleRenderSystem::renderGameobjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects, const EngineCamera& camera)
 	{
 		enginePipline->bind(commandBuffer);
 
-		int i = 0;
+		auto projectionView = camera.getProjection() * camera.getView();
+		
 		for (auto& obj : gameObjects)
 		{
-			i += 1;
-			obj.transform2d.rotation = glm::mod<float>(obj.transform2d.rotation + 0.001f * i, 2.f * glm::pi<float>());
+			obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.001f, glm::pi<float>());
+			obj.transform.rotation.x = glm::mod(obj.transform.rotation.x + 0.0005f, glm::pi<float>());
 			SimplePushConstantData push{};
-			push.offset = obj.transform2d.translation;
 			push.color = obj.color;
-			push.transform = obj.transform2d.mat2();
+			push.transform = projectionView * obj.transform.mat4();
 
-			enginePipline->bind(commandBuffer);
-			for (auto& obj : gameObjects)
-			{
-				SimplePushConstantData push{};
-				push.offset = obj.transform2d.translation;
-				push.color = obj.color;
-				push.transform = obj.transform2d.mat2();
-
-				vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-				obj.model->bind(commandBuffer);
-				obj.model->draw(commandBuffer);
-			}
+			//enginePipline->bind(commandBuffer);
+			vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+			obj.model->bind(commandBuffer);
+			obj.model->draw(commandBuffer);
 		}
 	}
 	void SimpleRenderSystem::createPipelineLayout()

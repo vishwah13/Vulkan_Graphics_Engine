@@ -15,7 +15,7 @@ namespace VulkanEngine {
 
 		struct Vertex
 		{
-			glm::vec2 position;
+			glm::vec3 position;
 			glm::vec3 color;
 			static std::vector<VkVertexInputBindingDescription> getBindingDescription();
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescription();
@@ -30,6 +30,7 @@ namespace VulkanEngine {
 		void draw(VkCommandBuffer commandBuffer);
 	private:
 		void createVertexBuffers(const std::vector<Vertex>& vertices);
+		//void createIndexBuffer(const std::vector<uint16_t>& indices);
 		EngineDevice& engineDevice;
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexbufferMemory;
