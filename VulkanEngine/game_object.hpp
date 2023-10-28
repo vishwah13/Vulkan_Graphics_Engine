@@ -61,7 +61,7 @@ namespace VulkanEngine {
 			static id_t currentId = 0;
 			return GameObject{ currentId++ };
 		}
-		GameObject() {};
+		//GameObject() {};
 
 		GameObject(const GameObject&) = delete;
 		GameObject& operator=(const GameObject&) = delete;
