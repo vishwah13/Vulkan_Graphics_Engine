@@ -20,7 +20,13 @@ namespace VulkanEngine {
 			static std::vector<VkVertexInputBindingDescription> getBindingDescription();
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescription();
 		};
-		EngineModel(EngineDevice& device, const std::vector<Vertex>& vertices);
+
+		struct Builder {
+			std::vector<Vertex> vertices{};
+			std::vector<uint32_t> indices{};
+		};
+
+		EngineModel(EngineDevice& device, const EngineModel::Builder& builder);
 		~EngineModel();
 
 		EngineModel(const EngineModel&) = delete;
@@ -30,10 +36,17 @@ namespace VulkanEngine {
 		void draw(VkCommandBuffer commandBuffer);
 	private:
 		void createVertexBuffers(const std::vector<Vertex>& vertices);
-		//void createIndexBuffer(const std::vector<uint16_t>& indices);
+		void createIndexBuffer(const std::vector<uint32_t>& indices);
+
 		EngineDevice& engineDevice;
+
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexbufferMemory;
 		uint32_t vertexCount;
+
+		bool hasIndexbuffer = false;
+		VkBuffer indexBuffer;
+		VkDeviceMemory indexbufferMemory;
+		uint32_t indexCount;
 	};
 }

@@ -3,15 +3,21 @@
 
 namespace VulkanEngine {
 
-	EngineModel::EngineModel(EngineDevice& device, const std::vector<Vertex>& vertices) : engineDevice(device)
+	EngineModel::EngineModel(EngineDevice& device, const EngineModel::Builder& builder) : engineDevice(device)
 	{
-		createVertexBuffers(vertices);
+		createVertexBuffers(builder.vertices);
+		createIndexBuffer(builder.indices);
 	}
 
 	EngineModel::~EngineModel()
 	{
 		vkDestroyBuffer(engineDevice.device(), vertexBuffer, nullptr);
 		vkFreeMemory(engineDevice.device(), vertexbufferMemory, nullptr);
+
+		if (hasIndexbuffer) {
+			vkDestroyBuffer(engineDevice.device(), indexBuffer, nullptr);
+			vkFreeMemory(engineDevice.device(), indexbufferMemory, nullptr);
+		}
 	}
 
 	void EngineModel::bind(VkCommandBuffer commandBuffer)
@@ -19,11 +25,21 @@ namespace VulkanEngine {
 		VkBuffer buffers[] = { vertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+
+		if (hasIndexbuffer) {
+			vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		}
 	}
 
 	void EngineModel::draw(VkCommandBuffer commandBuffer)
 	{
-		vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+		if (hasIndexbuffer) {
+			vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+		}
+		else {
+			vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+		}
+		
 	}
 
 	void EngineModel::createVertexBuffers(const std::vector<Vertex>& vertices)
@@ -31,39 +47,70 @@ namespace VulkanEngine {
 		vertexCount = static_cast<uint32_t>(vertices.size());
 		assert(vertexCount >= 3 && "Vertex count must be at least 3");
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
-		engineDevice.createBuffer(
-			bufferSize,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			vertexBuffer,
-			vertexbufferMemory);
-
-		void* data;
-		vkMapMemory(engineDevice.device(), vertexbufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-		vkUnmapMemory(engineDevice.device(), vertexbufferMemory);
-	}
-
-	/*void EngineModel::createIndexBuffer(const std::vector<uint16_t>& indices)
-	{
-		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		engineDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		engineDevice.createBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer,
+			stagingBufferMemory);
 
 		void* data;
 		vkMapMemory(engineDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, indices.data(), (size_t)bufferSize);
+		memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
 		vkUnmapMemory(engineDevice.device(), stagingBufferMemory);
 
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+		engineDevice.createBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			vertexBuffer,
+			vertexbufferMemory);
 
-		copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+		engineDevice.copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-		vkDestroyBuffer(device, stagingBuffer, nullptr);
-		vkFreeMemory(device, stagingBufferMemory, nullptr);
-	}*/
+		vkDestroyBuffer(engineDevice.device(), stagingBuffer, nullptr);
+		vkFreeMemory(engineDevice.device(), stagingBufferMemory, nullptr);
+	}
+
+	void EngineModel::createIndexBuffer(const std::vector<uint32_t>& indices)
+	{
+		indexCount = static_cast<uint32_t>(indices.size());
+		hasIndexbuffer = indexCount > 0;
+
+		if (!hasIndexbuffer) {
+			return;
+		}
+
+		VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		engineDevice.createBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer,
+			stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(engineDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
+		vkUnmapMemory(engineDevice.device(), stagingBufferMemory);
+
+		engineDevice.createBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			indexBuffer,
+			indexbufferMemory);
+
+		engineDevice.copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+		vkDestroyBuffer(engineDevice.device(), stagingBuffer, nullptr);
+		vkFreeMemory(engineDevice.device(), stagingBufferMemory, nullptr);
+	}
 
 	std::vector<VkVertexInputBindingDescription> EngineModel::Vertex::getBindingDescription()
 	{
