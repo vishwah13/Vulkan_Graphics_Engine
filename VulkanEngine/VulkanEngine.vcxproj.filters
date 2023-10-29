@@ -83,5 +83,8 @@
     <ClInclude Include="Keyboard.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine_utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

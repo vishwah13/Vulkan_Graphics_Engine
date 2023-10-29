@@ -5,6 +5,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <memory>
 #include <vector>
 
 namespace VulkanEngine {
@@ -15,15 +16,24 @@ namespace VulkanEngine {
 
 		struct Vertex
 		{
-			glm::vec3 position;
-			glm::vec3 color;
+			glm::vec3 position{};
+			glm::vec3 color{};
+			glm::vec3 normal{};
+			glm::vec2 uv{};
+
 			static std::vector<VkVertexInputBindingDescription> getBindingDescription();
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescription();
+
+			bool operator ==(const Vertex& other) const {
+				return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+			}
 		};
 
 		struct Builder {
 			std::vector<Vertex> vertices{};
 			std::vector<uint32_t> indices{};
+
+			void loadModel(const std::string& filepath);
 		};
 
 		EngineModel(EngineDevice& device, const EngineModel::Builder& builder);
@@ -31,6 +41,8 @@ namespace VulkanEngine {
 
 		EngineModel(const EngineModel&) = delete;
 		EngineModel& operator=(const EngineModel&) = delete;
+
+		static std::unique_ptr<EngineModel> createModelFromFile(EngineDevice& device, const std::string& filePath);
 
 		void bind(VkCommandBuffer commandBuffer);
 		void draw(VkCommandBuffer commandBuffer);
