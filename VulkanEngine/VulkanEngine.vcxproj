@@ -149,6 +149,7 @@
     <ClCompile Include="engine_pipeline.cpp" />
     <ClCompile Include="engine_renderer.cpp" />
     <ClCompile Include="engine_window.cpp" />
+    <ClCompile Include="game_object.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine_device.cpp" />
