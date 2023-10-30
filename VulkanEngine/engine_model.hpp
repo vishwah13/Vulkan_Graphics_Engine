@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine_device.hpp"
+#include "engine_buffer.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -52,13 +53,11 @@ namespace VulkanEngine {
 
 		EngineDevice& engineDevice;
 
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexbufferMemory;
+		std::unique_ptr<EngineBuffer> vertexBuffer;
 		uint32_t vertexCount;
 
 		bool hasIndexbuffer = false;
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexbufferMemory;
+		std::unique_ptr<EngineBuffer> indexBuffer;
 		uint32_t indexCount;
 	};
 }
