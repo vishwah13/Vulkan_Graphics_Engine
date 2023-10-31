@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.hpp" />
+    <ClInclude Include="enginer_frame_info.hpp" />
     <ClInclude Include="engine_buffer.hpp" />
     <ClInclude Include="engine_Camera.hpp" />
     <ClInclude Include="engine_model.hpp" />

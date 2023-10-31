@@ -7,7 +7,7 @@
 #include "engine_model.hpp"
 #include "engine_Camera.hpp"
 #include "game_object.hpp"
-
+#include "enginer_frame_info.hpp"
 
 namespace VulkanEngine {
 
@@ -20,7 +20,7 @@ namespace VulkanEngine {
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameobjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects, const EngineCamera& camera);
+		void renderGameobjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects);
 
 
 	private:

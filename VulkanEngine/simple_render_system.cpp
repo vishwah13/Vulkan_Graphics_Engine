@@ -27,11 +27,11 @@ namespace VulkanEngine {
 	{
 		vkDestroyPipelineLayout(engineDevice.device(), pipelineLayout, nullptr);
 	}
-	void SimpleRenderSystem::renderGameobjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects, const EngineCamera& camera)
+	void SimpleRenderSystem::renderGameobjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects)
 	{
-		enginePipline->bind(commandBuffer);
+		enginePipline->bind(frameInfo.commandbuffer);
 
-		auto projectionView = camera.getProjection() * camera.getView();
+		auto projectionView = frameInfo.camera.getProjection() * frameInfo.camera.getView();
 		
 		for (auto& obj : gameObjects)
 		{
@@ -43,9 +43,9 @@ namespace VulkanEngine {
 			push.normalMatrix = obj.transform.normalMatrix();
 
 			//enginePipline->bind(commandBuffer);
-			vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-			obj.model->bind(commandBuffer);
-			obj.model->draw(commandBuffer);
+			vkCmdPushConstants(frameInfo.commandbuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+			obj.model->bind(frameInfo.commandbuffer);
+			obj.model->draw(frameInfo.commandbuffer);
 		}
 	}
 	void SimpleRenderSystem::createPipelineLayout()

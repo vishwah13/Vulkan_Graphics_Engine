@@ -11,11 +11,17 @@
 #include <array>
 #include <assert.h>
 #include <chrono>
-
+#include <numeric>
 
 
 
 namespace VulkanEngine {
+
+	struct GlobalUbo
+	{
+		glm::mat4 projectionView{1.f};
+		glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+	};
 
 	App::App()
 	{
@@ -25,6 +31,19 @@ namespace VulkanEngine {
 
 	void App::run()
 	{
+		std::vector<std::unique_ptr<EngineBuffer>> uboBuffer(EngineSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < uboBuffer.size(); i++) {
+			uboBuffer[i] = std::make_unique<EngineBuffer>(
+				engineDevice,
+				sizeof(GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT //| VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+			);
+			uboBuffer[i]->map();
+		}
+
+
 		SimpleRenderSystem simpleRendererSystem{ engineDevice, engineRenderer.getSwapChainRenderPass() };
 		EngineCamera camera{};
 		//camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
@@ -52,8 +71,17 @@ namespace VulkanEngine {
 			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
 			if (auto commandBuffer = engineRenderer.beginFrame()) {
+				int frameIndex = engineRenderer.getFrameIndex();
+				FrameInfo frameInfo{ frameIndex, frameTime, commandBuffer, camera };
+				//update
+				GlobalUbo ubo{};
+				ubo.projectionView = camera.getProjection() * camera.getView();
+				uboBuffer[frameIndex]->writeToBuffer(&ubo);
+				uboBuffer[frameIndex]->flush();
+
+				//render
 				engineRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRendererSystem.renderGameobjects(commandBuffer, gameObjects,camera);
+				simpleRendererSystem.renderGameobjects(frameInfo, gameObjects);
 				engineRenderer.endSwapChainRenderPass(commandBuffer);
 				engineRenderer.endFrame();
 			}
