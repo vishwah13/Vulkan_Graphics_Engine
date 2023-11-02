@@ -19,12 +19,16 @@ namespace VulkanEngine {
 
 	struct GlobalUbo
 	{
-		glm::mat4 projectionView{1.f};
-		glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+		alignas(16) glm::mat4 projectionView{1.f};
+		alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
 	};
 
 	App::App()
 	{
+		globalPool = EngineDescriptorPool::Builder(engineDevice)
+			.setMaxSets(EngineSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, EngineSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.build();
 		loadGameobjects();
 	}
 	App::~App() {}
@@ -43,8 +47,20 @@ namespace VulkanEngine {
 			uboBuffer[i]->map();
 		}
 
+		auto globalSetLayout = EngineDescriptorSetLayout::Builder(engineDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.build();
 
-		SimpleRenderSystem simpleRendererSystem{ engineDevice, engineRenderer.getSwapChainRenderPass() };
+		std::vector<VkDescriptorSet> globalDescriptorSets(EngineSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < globalDescriptorSets.size(); i++)
+		{
+			auto bufferInfo = uboBuffer[i]->descriptorInfo();
+			EngineDescriptorWriter(*globalSetLayout, *globalPool)
+				.writeBuffer(0, &bufferInfo)
+				.build(globalDescriptorSets[i]);
+		}
+
+		SimpleRenderSystem simpleRendererSystem{ engineDevice, engineRenderer.getSwapChainRenderPass(),globalSetLayout->getDescriptorSetLayout()};
 		EngineCamera camera{};
 		//camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
 		camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
@@ -72,7 +88,7 @@ namespace VulkanEngine {
 
 			if (auto commandBuffer = engineRenderer.beginFrame()) {
 				int frameIndex = engineRenderer.getFrameIndex();
-				FrameInfo frameInfo{ frameIndex, frameTime, commandBuffer, camera };
+				FrameInfo frameInfo{ frameIndex, frameTime, commandBuffer, camera,globalDescriptorSets[frameIndex]};
 				//update
 				GlobalUbo ubo{};
 				ubo.projectionView = camera.getProjection() * camera.getView();
@@ -91,7 +107,7 @@ namespace VulkanEngine {
 
 	void App::loadGameobjects()
 	{
-		std::shared_ptr<EngineModel> engineModel = EngineModel::createModelFromFile(engineDevice, "models/flat_vase.obj");
+		std::shared_ptr<EngineModel> engineModel = EngineModel::createModelFromFile(engineDevice, "models/smooth_vase.obj");
 
 		auto gameObj = GameObject::createGameObject();
 		gameObj.model = engineModel;

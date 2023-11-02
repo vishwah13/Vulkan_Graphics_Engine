@@ -9,5 +9,6 @@ namespace VulkanEngine {
 		float frameTime;
 		VkCommandBuffer commandbuffer;
 		EngineCamera& camera;
+		VkDescriptorSet globalDescriptorSet;
 	};
 }

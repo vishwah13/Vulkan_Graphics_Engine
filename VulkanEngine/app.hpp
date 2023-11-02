@@ -7,6 +7,7 @@
 #include "engine_renderer.hpp"
 #include "engine_model.hpp"
 #include "game_object.hpp"
+#include "engine_descriptors.hpp"
 
 
 namespace VulkanEngine {
@@ -30,6 +31,9 @@ namespace VulkanEngine {
 		VulkanEngineWindow veWindow{WIDTH, HEIGHT, "HELLO VULKAN !"};
 		EngineDevice engineDevice{ veWindow };
 		EngineRenderer engineRenderer{ veWindow,engineDevice };
+
+		//note: order of declaration matters
+		std::unique_ptr<EngineDescriptorPool> globalPool{};
 		std::vector<GameObject> gameObjects;
 		
 	};

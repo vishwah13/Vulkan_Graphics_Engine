@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -146,6 +146,7 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="engine_buffer.cpp" />
     <ClCompile Include="engine_Camera.cpp" />
+    <ClCompile Include="engine_descriptors.cpp" />
     <ClCompile Include="engine_model.cpp" />
     <ClCompile Include="engine_pipeline.cpp" />
     <ClCompile Include="engine_renderer.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="enginer_frame_info.hpp" />
     <ClInclude Include="engine_buffer.hpp" />
     <ClInclude Include="engine_Camera.hpp" />
+    <ClInclude Include="engine_descriptors.hpp" />
     <ClInclude Include="engine_model.hpp" />
     <ClInclude Include="engine_pipeline.hpp" />
     <ClInclude Include="engine_renderer.hpp" />
