@@ -14,7 +14,6 @@ namespace VulkanEngine {
 
 	struct SimplePushConstantData {
 		glm::mat4 modelMatrix{1.f};
-		//alignas(16) glm::vec3 color;
 		glm::mat4 normalMatrix{1.0f};
 	};
 
@@ -45,11 +44,11 @@ namespace VulkanEngine {
 		{
 
 			SimplePushConstantData push{};
-			//push.color = obj.color;
+			
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
 
-			//enginePipline->bind(commandBuffer);
+			
 			vkCmdPushConstants(frameInfo.commandbuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
 			obj.model->bind(frameInfo.commandbuffer);
 			obj.model->draw(frameInfo.commandbuffer);

@@ -28,7 +28,7 @@ namespace VulkanEngine {
 		void loadGameobjects();
 		
 
-		VulkanEngineWindow veWindow{WIDTH, HEIGHT, "HELLO VULKAN !"};
+		VulkanEngineWindow veWindow{WIDTH, HEIGHT, "VULKAN GRAPHICS ENGINE"};
 		EngineDevice engineDevice{ veWindow };
 		EngineRenderer engineRenderer{ veWindow,engineDevice };
 
